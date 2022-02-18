@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+import platform
+import os
+from shutil import which
+import psutil
+import subprocess
+
+def get_os():
+    return platform.freedesktop_os_release()["ID"]
+
+def get_kernel():
+    return platform.release()
+
+def get_hostname():
+    return platform.node()
+
+def get_shell():
+    return os.environ["SHELL"].split("/")[-1]
+
+def humanbytes(B):
+    """Return the given bytes as a human friendly KB, MB, GB, or TB string."""
+    B = float(B)
+    KB = float(1024)
+    MB = float(KB ** 2) # 1,048,576
+    GB = float(KB ** 3) # 1,073,741,824
+    TB = float(KB ** 4) # 1,099,511,627,776
+
+    if B < KB:
+        return '{0} {1}'.format(B,'Bytes' if 0 == B > 1 else 'Byte')
+    elif KB <= B < MB:
+        return '{0:.2f} KB'.format(B / KB)
+    elif MB <= B < GB:
+        return '{0:.2f} MB'.format(B / MB)
+    elif GB <= B < TB:
+        return '{0:.2f} GB'.format(B / GB)
+    elif TB <= B:
+        return '{0:.2f} TB'.format(B / TB)
+
+def get_ram():
+    """ http://downloadramdownloadramdownloadram.com """
+    used = psutil.virtual_memory()[3]
+    total = psutil.virtual_memory()[1]
+    return humanbytes(used), humanbytes(total)
+
+def get_packages():
+    cmds = ('apt', 'pacman', 'pacstall', 'xbps-query')
+    valid_cmds = []
+    for i in cmds:
+        if which(i):
+            valid_cmds.append(i)
+        else:
+            continue
+    subprocesses = {
+       "apt": "dpkg --list | wc -l",
+       "pacman": "pacman -Qq | wc -l",
+       "pacstall": "pacstall -L | wc -l",
+       "xbps-query": "xbps-query -l | wc -l",
+    }
+    packages = []
+    for i in valid_cmds:
+        packages.append(subprocess.run(subprocesses.get(i, "oof")))
+    return packages
+
+print(get_os())
+print(get_kernel())
+print(get_hostname())
+print(get_shell())
+print(get_ram())
+print(get_packages())
+print(get_packages())
