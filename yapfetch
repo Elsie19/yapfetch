@@ -5,9 +5,8 @@ import os
 from shutil import which
 from pathlib import Path
 from pathlib import PurePosixPath
-import psutil
+from psutil import virtual_memory
 import subprocess
-from rich.console import Console
 from itertools import zip_longest
 
 red = "\033[1;91m"
@@ -55,8 +54,8 @@ def humanbytes(B):
 
 def get_ram():
     """ http://downloadramdownloadramdownloadram.com """
-    used = psutil.virtual_memory().used
-    total = psutil.virtual_memory().total
+    used = virtual_memory().used
+    total = virtual_memory().total
     return humanbytes(used), humanbytes(total)
 
 def get_packages():
@@ -116,9 +115,7 @@ pengoo = r"""
     \       /
    __\_>-<_/__
    ~;/     \;~
-"""
-
-console = Console()
+""".splitlines()
 
 used, total = get_ram()
 strata = ' '.join(get_strata())
@@ -134,14 +131,14 @@ side = f"""
 {yellow}{reset} {strata}
 {green}{reset} {get_uptime()}
 {blue}{reset} {get_colors()}
-"""
+""".splitlines()
 
 def header():
     return f"{bold}--------------------{reset}[{bold}{green}{reset}]{bold}--------------------{reset}"
 
 print(header(), end='')
 
-longest_pengoo_body_part = len(max(pengoo.splitlines(), key=len))
-for pengoo_body_part, side_line in zip_longest(pengoo.splitlines(), side.splitlines()):
+longest_pengoo_body_part = len(max(pengoo, key=len))
+for pengoo_body_part, side_line in zip_longest(pengoo, side):
     padding = longest_pengoo_body_part - len(pengoo_body_part or "") + 2
     print(pengoo_body_part or "", f"{' ' * padding}{side_line or ''}")
