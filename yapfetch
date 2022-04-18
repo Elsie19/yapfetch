@@ -6,7 +6,7 @@ from shutil import which
 from pathlib import Path
 from pathlib import PurePosixPath
 from psutil import virtual_memory
-import subprocess
+from subprocess import run
 from itertools import zip_longest
 
 red = "\033[1;91m"
@@ -77,7 +77,7 @@ def get_packages():
         packages.append([
             i,
             len(
-                subprocess.run(
+                run(
                     subprocesses.get(i, "oof"),
                     capture_output=True,
                 ).stdout.splitlines()
@@ -99,7 +99,7 @@ def get_strata():
     return strata
 
 def get_uptime():
-    return subprocess.run(["uptime", "-p"], capture_output=True).stdout.decode().strip()[3:]
+    return run(["uptime", "-p"], capture_output=True).stdout.decode().strip()[3:]
 
 def get_colors():
     return f"{bold}{red}███{green}███{yellow}███{blue}███{magenta}███{cyan}███{reset}"
